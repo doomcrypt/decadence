@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Decadance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Cinzel:wght@400;600&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:        #2C1A0E;
+    --parchment:  #F0E2C4;
+    --parchment2: #E8D5A8;
+    --parchment3: #DEC48A;
+    --blood:      #7A1218;
+    --gold:       #B8933A;
+    --gold-light: #D4AF5A;
+    --sepia:      #6B4C2A;
+    --sepia-light:#9B7A4A;
+    --faded:      #A08060;
+  }
+
+  body {
+    background-color: var(--parchment);
+    color: var(--ink);
+    font-family: 'IM Fell English', serif;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Parchment texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Aged edge vignette */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 60%, rgba(44,26,14,0.25) 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #app {
+    position: relative;
+    z-index: 1;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    text-align: center;
+    margin-bottom: 28px;
+    border-bottom: 2px solid var(--gold);
+    padding-bottom: 20px;
+  }
+
+  .header-ornament {
+    font-family: 'UnifrakturMaguntia', cursive;
+    font-size: 13px;
+    color: var(--sepia-light);
+    letter-spacing: 6px;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  h1 {
+    font-family: 'UnifrakturMaguntia', cursive;
+    font-size: 56px;
+    color: var(--ink);
+    line-height: 1;
+    letter-spacing: 2px;
+  }
+
+  .header-sub {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 5px;
+    color: var(--sepia-light);
+    margin-top: 6px;
+  }
+
+  /* ── STATUS ── */
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    border: 1px solid var(--parchment3);
+    border-left: 3px solid var(--blood);
+    background: rgba(44,26,14,0.04);
+    margin-bottom: 24px;
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--sepia);
+  }
+
+  .status-val {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .status-score { color: var(--blood); font-size: 14px; }
+
+  /* ── PHASE ── */
+  .phase-indicator {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 24px;
+    border: 1px solid var(--parchment3);
+  }
+
+  .phase-step {
+    flex: 1;
+    text-align: center;
+    padding: 6px 4px;
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--faded);
+    border-right: 1px solid var(--parchment3);
+    background: transparent;
+  }
+  .phase-step:last-child { border-right: none; }
+  .phase-step.active {
+    background: var(--ink);
+    color: var(--parchment);
+  }
+
+  /* ── ATLANTEAN CROSS ── */
+  .section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--sepia-light);
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  .atlantean-cross {
+    display: grid;
+    grid-template-areas:
+      ". top ."
+      "left center right"
+      ". bot .";
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 10px;
+    justify-items: center;
+    margin-bottom: 28px;
+  }
+
+  .cross-slot { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .cross-slot[data-pos="north"]  { grid-area: top; }
+  .cross-slot[data-pos="west"]   { grid-area: left; }
+  .cross-slot[data-pos="center"] { grid-area: center; }
+  .cross-slot[data-pos="east"]   { grid-area: right; }
+  .cross-slot[data-pos="south"]  { grid-area: bot; }
+
+  .cross-label {
+    font-family: 'Cinzel', serif;
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: var(--faded);
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    width: 74px;
+    height: 104px;
+    border: 1px solid var(--parchment3);
+    background: var(--parchment);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: default;
+    transition: transform 0.15s, box-shadow 0.15s;
+    font-family: 'Cinzel', serif;
+    user-select: none;
+    box-shadow: 1px 2px 4px rgba(44,26,14,0.15);
+  }
+
+  .card.empty {
+    border: 1px dashed var(--parchment3);
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .card-value {
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .card-suit {
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .suit-red  { color: var(--blood); }
+  .suit-black { color: var(--ink); }
+
+  /* card corner pips */
+  .card-corner {
+    position: absolute;
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+  }
+  .card-corner.tl { top: 4px; left: 5px; }
+  .card-corner.br { bottom: 4px; right: 5px; transform: rotate(180deg); }
+  .card-corner .cn-suit { font-size: 8px; }
+
+  /* card states */
+  .card.selectable {
+    cursor: pointer;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 2px var(--gold-light), 1px 2px 4px rgba(44,26,14,0.2);
+  }
+  .card.selectable:hover { transform: translateY(-3px); }
+
+  .card.selected {
+    border-color: var(--blood);
+    box-shadow: 0 0 0 2px var(--blood), 2px 4px 8px rgba(122,18,24,0.2);
+    transform: translateY(-3px);
+  }
+
+  .card.paired {
+    border-color: var(--sepia);
+    background: var(--parchment2);
+    opacity: 0.7;
+  }
+
+  .card.face-down {
+    background: repeating-linear-gradient(
+      45deg,
+      var(--parchment2),
+      var(--parchment2) 4px,
+      var(--parchment3) 4px,
+      var(--parchment3) 8px
+    );
+    border-color: var(--sepia);
+  }
+
+  .card.face-down .card-value,
+  .card.face-down .card-suit,
+  .card.face-down .card-corner { display: none; }
+
+  /* ── SET-2 AREA ── */
+  .set2-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .set2-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .set2-deck-indicator {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--sepia-light);
+    text-align: center;
+  }
+
+  /* ── CONTROLS ── */
+  .controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  .btn {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 3px;
+    padding: 8px 20px;
+    border: 1px solid var(--sepia);
+    background: transparent;
+    color: var(--sepia);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn:hover:not(:disabled) {
+    background: var(--ink);
+    color: var(--parchment);
+    border-color: var(--ink);
+  }
+  .btn:disabled { opacity: 0.3; cursor: default; }
+
+  .btn-primary {
+    background: var(--ink);
+    color: var(--parchment);
+    border-color: var(--ink);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--blood);
+    border-color: var(--blood);
+  }
+
+  /* ── LOG ── */
+  .log-panel {
+    border: 1px solid var(--parchment3);
+    border-left: 3px solid var(--sepia);
+    background: rgba(44,26,14,0.03);
+    height: 110px;
+    overflow-y: auto;
+    padding: 8px 12px;
+    margin-bottom: 20px;
+    font-size: 12px;
+    font-style: italic;
+    line-height: 1.7;
+    color: var(--sepia);
+  }
+
+  .log-entry { display: block; }
+  .log-entry.system { color: var(--ink); font-style: normal; font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 1px; }
+  .log-entry.positive { color: var(--blood); }
+  .log-entry.negative { color: var(--blood); font-weight: bold; }
+  .log-entry.warn { color: var(--blood); font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 1px; font-style: normal; }
+  .log-entry.highlight { color: var(--gold); }
+
+  /* ── ROUND HISTORY ── */
+  .round-history {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 20px;
+    min-height: 24px;
+  }
+
+  .round-pip {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    padding: 2px 8px;
+    border: 1px solid var(--parchment3);
+    color: var(--sepia);
+  }
+  .round-pip.neg { border-color: var(--blood); color: var(--blood); }
+
+  /* ── RESULT SCREEN ── */
+  .result-screen {
+    display: none;
+    text-align: center;
+    padding: 32px 24px;
+    border: 2px solid var(--gold);
+    background: var(--parchment2);
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .result-screen::before {
+    content: '✦  ✦  ✦';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--parchment2);
+    padding: 0 12px;
+    color: var(--gold);
+    font-size: 12px;
+    letter-spacing: 4px;
+  }
+
+  .result-screen.show { display: block; }
+
+  .result-demon {
+    font-family: 'UnifrakturMaguntia', cursive;
+    font-size: 48px;
+    color: var(--ink);
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+
+  .result-meta {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--sepia-light);
+    margin-bottom: 16px;
+    line-height: 2;
+  }
+  .result-meta b { color: var(--gold); }
+
+  .result-score-label {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--sepia-light);
+    margin-top: 16px;
+    margin-bottom: 2px;
+  }
+
+  .result-score-label.angelic { color: var(--gold); }
+
+  .result-score-num {
+    font-family: 'Cinzel', serif;
+    font-size: 52px;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .result-score-num.neg { color: var(--blood); }
+
+  .result-lore {
+    max-width: 480px;
+    margin: 16px auto 0;
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--sepia);
+    border-top: 1px solid var(--parchment3);
+    padding-top: 14px;
+    font-style: italic;
+  }
+
+  .result-lore em { color: var(--ink); font-style: normal; font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 1px; }
+
+  .set2-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 4px 0 8px;
+  }
+
+  .card.current {
+    border-color: var(--blood);
+    box-shadow: 0 0 0 2px var(--blood), 2px 4px 8px rgba(122,18,24,0.2);
+  }
+
+  .card.discarded {
+    opacity: 0.3;
+    border-style: dashed;
+  }
+
+  /* ── TOOLTIP ── */
+  #card-tooltip {
+    position: fixed;
+    background: var(--ink);
+    border: 1px solid var(--gold);
+    color: var(--parchment);
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    padding: 4px 10px;
+    pointer-events: none;
+    z-index: 2000;
+    display: none;
+  }
+
+  /* ── RULES PANEL ── */
+  .rules-toggle {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .rules-panel {
+    display: none;
+    border: 1px solid var(--parchment3);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    line-height: 1.9;
+    color: var(--sepia);
+    font-style: italic;
+  }
+  .rules-panel.open { display: block; }
+  .rules-panel h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--ink);
+    font-style: normal;
+    margin-bottom: 6px;
+    margin-top: 12px;
+  }
+  .rules-panel h3:first-child { margin-top: 0; }
+
+  /* divider */
+  .divider {
+    text-align: center;
+    color: var(--gold);
+    font-size: 12px;
+    letter-spacing: 8px;
+    margin: 16px 0;
+  }
+</style>
+</head>
+<body>
+<div id="card-tooltip"></div>
+<div id="app">
+
+  <div class="header">
+    <span class="header-ornament">✦ Lemurian Pandemonium ✦</span>
+    <h1>Decadance</h1>
+    <div class="header-sub">A Decadence Game of the Numogram</div>
+  </div>
+
+  <div class="status-bar">
+    <span>Round <span class="status-val" id="st-round">—</span></span>
+    <span>Deck <span class="status-val" id="st-deck">36</span></span>
+    <span>Angelic Index <span class="status-val status-score" id="st-index">0</span></span>
+    <span>Round Score <span class="status-val" id="st-round-score">—</span></span>
+  </div>
+
+  <div class="phase-indicator">
+    <div class="phase-step active" id="ph-0">Deal Set-1</div>
+    <div class="phase-step" id="ph-1">Draw Set-2</div>
+    <div class="phase-step" id="ph-2">Pair</div>
+    <div class="phase-step" id="ph-3">Resolve</div>
+  </div>
+
+  <div class="result-screen" id="result-screen">
+    <div class="result-demon" id="result-demon-name"></div>
+    <div class="result-meta" id="result-meta"></div>
+    <div class="result-score-label angelic" id="angelic-label" style="display:none">Angelic Index</div>
+    <div class="result-score-num" id="angelic-num" style="display:none"></div>
+    <div class="result-score-label">Negative Score</div>
+    <div class="result-score-num neg" id="result-score-num"></div>
+    <div class="result-lore" id="result-lore"></div>
+    <div class="divider" style="margin-top:20px">✦ ✦ ✦</div>
+    <div class="controls">
+      <button class="btn btn-primary" onclick="SFX.click();startGame()">New Aeon</button>
+    </div>
+  </div>
+
+  <div class="section-title">The Atlantean Cross — Set-1</div>
+  <div class="atlantean-cross" id="cross-grid"></div>
+
+  <div class="section-title" style="margin-top:4px">Set-2</div>
+  <div class="set2-area">
+    <div class="set2-row" id="set2-row"></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-primary" id="btn-deal" onclick="SFX.click();dealSet1()" disabled>Deal Set-1</button>
+    <button class="btn" id="btn-draw" onclick="SFX.click();drawSet2Card()" disabled>Draw Set-2</button>
+    <button class="btn" id="btn-discard" onclick="SFX.click();skipSet2Card()" disabled>Discard</button>
+    <button class="btn" id="btn-resolve" onclick="SFX.click();resolveRound()" disabled>Resolve</button>
+    <button class="btn" id="btn-new" onclick="SFX.click();startGame()">New Game</button>
+  </div>
+
+  <div class="round-history" id="round-history"></div>
+  <div class="log-panel" id="log-panel"></div>
+
+  <div class="rules-toggle">
+    <button class="btn" onclick="toggleRules()">Rules</button>
+  </div>
+  <div class="rules-panel" id="rules-panel">
+    <h3>The Deck</h3>
+    Remove all royal cards, tens, and jokers from a standard pack. The remainder is a Decadence pack of thirty-six cards (1 through 9, four suits).
+    <h3>The Cross</h3>
+    Five cards are dealt face up (Set-1) in the Atlantean Cross: Centre (Memories &amp; Dreams), West (Destructive), East (Creative), North (Far Future), South (Deep Past).
+    <h3>Pairing</h3>
+    Five cards are dealt face down (Set-2). Turn them over one at a time. Each Set-2 card may be paired with a Set-1 card if their values sum to ten. A pair scores the difference between the two cards (5+5=0, 9+1=8). A Set-2 card that cannot pair is discarded. An unpaired Set-1 card scores its raw value negatively.
+    <h3>Scoring</h3>
+    Round scores can be positive or negative. Positive scores accumulate to the Angelic Index. The Aeon ends on the first negative result. Negative scores (0 to −44) call a demon from the Pandemonium Matrix.
+  </div>
+
+</div>
+
+<script>
+// =============================================
+// AUDIO
+// =============================================
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let actx = null;
+function getACtx() {
+  if (!actx) actx = new AudioCtx();
+  return actx;
+}
+
+function playTone(freq, type, duration, volume=0.3, fadeOut=true) {
+  const ctx = getACtx();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, ctx.currentTime);
+  gain.gain.setValueAtTime(volume, ctx.currentTime);
+  if (fadeOut) gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+  osc.start(); osc.stop(ctx.currentTime + duration);
+}
+
+function playClick()   { playTone(600, 'sine', 0.04, 0.1); }
+function playFlip()    { playTone(330, 'triangle', 0.12, 0.2); }
+function playPair(diff) {
+  const base = 260 + diff * 22;
+  [0, 4, 7].forEach((semi, i) => {
+    setTimeout(() => playTone(base * Math.pow(2, semi/12), 'sine', 0.22, 0.18), i * 70);
+  });
+}
+function playNoMatch() { playTone(140, 'sawtooth', 0.3, 0.25); }
+function playResolvePos() {
+  [330, 415, 494, 622].forEach((f, i) => {
+    setTimeout(() => playTone(f, 'sine', 0.35, 0.22), i * 90);
+  });
+}
+function playResolveNeg() {
+  [220, 196, 165, 130].forEach((f, i) => {
+    setTimeout(() => playTone(f, 'sawtooth', 0.4, 0.28), i * 130);
+  });
+}
+
+function stopAll() { if (actx) { actx.close(); actx = null; } }
+
+const SFX = {
+  click()        { playClick(); },
+  deal()         { playFlip(); },
+  draw()         { playFlip(); },
+  pair(diff)     { playPair(diff); },
+  noMatch()      { playNoMatch(); },
+  resolvePos(s)  { playPair(s); },
+  resolveNeg()   { playResolveNeg(); },
+  demonCall()    { playResolveNeg(); },
+};
+
+// =============================================
+// PANDEMONIUM MATRIX
+// =============================================
+const DEMONS = {
+  0:  { name:"Lurgo (Legba)",          type:"Amphidemon of Openings",                        attrs:"Terminal Initiator, Door of Doors, Spinal-voyage rites.",            netspan:"1::0",  card:{pip:7,suit:3} },
+  1:  { name:"Duoddod",                type:"Amphidemon of Abstract Addiction",               attrs:"Duplicitous Redoubler, Pineal-regression, digital exactitude.",       netspan:"2::0",  card:{pip:8,suit:3} },
+  2:  { name:"Doogu (The Blob)",        type:"Cyclic Chronodemon of Splitting-Waters",         attrs:"Original-Schism, primordial breath, ambivalent capture.",              netspan:"2::1",  card:{pip:1,suit:1} },
+  3:  { name:"Ixix (Yix)",             type:"Chaotic Xenodemon of Cosmic Indifference",       attrs:"Abductor, occult terrestrial history.",                                netspan:"3::0",  card:{pip:0,suit:3} },
+  4:  { name:"Ixigool (Djinn of the Magi)", type:"Amphidemon of Tridentity",                 attrs:"Over-Ghoul, unimpeded ascent, ultimate implications.",                 netspan:"3::1",  card:{pip:4,suit:1} },
+  5:  { name:"Ixidod (King Sid)",       type:"Amphidemon of Escape-velocity",                 attrs:"Zombie-Maker, crises through excess, illusion of progress.",           netspan:"3::2",  card:{pip:5,suit:1} },
+  6:  { name:"Krako (Kru, Karak-oa)",  type:"Amphidemon of Burning-Hail",                    attrs:"Croaking Curse, subsidence, heaviness of fatality.",                   netspan:"4::0",  card:{pip:9,suit:3} },
+  7:  { name:"Sukugool (Old Skug)",     type:"Cyclic Chronodemon of Deluge and Implosion",    attrs:"Sucking-Ghoul, cycle of creation/destruction, submersion.",            netspan:"4::1",  card:{pip:3,suit:3} },
+  8:  { name:"Skoodu (Li'l Scud)",     type:"Cyclic Chronodemon of Switch-Crazes",           attrs:"Fashioner, historical time, passage through the deep.",                netspan:"4::2",  card:{pip:2,suit:1} },
+  9:  { name:"Skarkix (Sharky)",        type:"Amphidemon of Anti-evolution",                  attrs:"Buzz-Cutter, hermetic abbreviations, apocalyptic rapture.",            netspan:"4::3",  card:{pip:6,suit:3} },
+  10: { name:"Tokhatto (Old Toker)",    type:"Amphidemon of Talismania",                      attrs:"Decimal Camouflage, number as destiny, Angel of the Cards.",           netspan:"5::0",  card:{pip:9,suit:0} },
+  11: { name:"Tukkamu",                type:"Cyclic Chronodemon of Pathogenesis",            attrs:"Occulturation, optimal maturation, rapid deterioration.",              netspan:"5::1",  card:{pip:3,suit:0} },
+  12: { name:"Kuttadid (Kitty)",       type:"Cyclic Chronodemon of Precarious States",       attrs:"Ticking Machines, maintaining balance, exhaustive vigilance.",         netspan:"5::2",  card:{pip:2,suit:2} },
+  13: { name:"Tikkitix (Tickler)",     type:"Amphidemon of Vortical Delirium",               attrs:"Clicking Menaces, swirl-patterns, mysterious disappearances.",         netspan:"5::3",  card:{pip:6,suit:0} },
+  14: { name:"Katak",                  type:"Syzygetic Chronodemon of Cataclysmic Convergence", attrs:"Desolator, tail-chasing, panic and religious fervor.",             netspan:"5::4",  card:{pip:0,suit:-1} },
+  15: { name:"Tchu (Tchanul)",         type:"Chaotic Xenodemon of Ultimate Outsideness",     attrs:"Source of Subnothingness, cosmic deletions.",                          netspan:"6::0",  card:{pip:0,suit:0} },
+  16: { name:"Djungo",                type:"Amphidemon of Subtle Involvements",             attrs:"Infiltrator, turbular fluids, surreptitious invasions.",               netspan:"6::1",  card:{pip:4,suit:2} },
+  17: { name:"Djuddha (Judd Dread)",  type:"Amphidemon of Artificial Turbulence",           attrs:"Decentred Threat, machine-vortex, storm peripheries.",                 netspan:"6::2",  card:{pip:5,suit:2} },
+  18: { name:"Djynxx (The Jinn)",      type:"Syzygetic Xenodemon of Time-Lapse",            attrs:"Child Stealer, abstract cyclones, dust spirals.",                      netspan:"6::3",  card:null },
+  19: { name:"Tchakki (Chuckles)",     type:"Amphidemon of Combustion",                     attrs:"Bag of Tricks, quenching accidents, conflagrations.",                  netspan:"6::4",  card:{pip:6,suit:1} },
+  20: { name:"Tchattuk (One Eyed Jack)", type:"Amphidemon of Unscreened Matrix",            attrs:"Pseudo-Basis, zero-gravity, cut-outs and UFO cover-ups.",              netspan:"6::5",  card:{pip:6,suit:2} },
+  21: { name:"Puppo (The Pup)",        type:"Amphidemon of Larval Regression",              attrs:"Break-Outs, dissolving into slime, chthonic swallowings.",             netspan:"7::0",  card:{pip:8,suit:0} },
+  22: { name:"Bubbamu (Bubs)",         type:"Cyclic Chronodemon of Relapse",                attrs:"After Babylon, hypersea, aquassassins.",                               netspan:"7::1",  card:{pip:1,suit:2} },
+  23: { name:"Oddubb (Odba)",          type:"Syzygetic Chronodemon of Swamp-Labyrinths",    attrs:"Broken Mirror, time loops, glamour.",                                  netspan:"7::2",  card:null },
+  24: { name:"Pabbakis (Pabz)",        type:"Amphidemon of Interference",                   attrs:"Dabbler, batrachian mutations, cans of worms.",                        netspan:"7::3",  card:{pip:5,suit:3} },
+  25: { name:"Ababbatok (Abracadabra)", type:"Cyclic Chronodemon of Suspended Decay",       attrs:"Frankensteinian experimentation, purifications.",                       netspan:"7::4",  card:{pip:2,suit:3} },
+  26: { name:"Papatakoo (Pataku)",     type:"Cyclic Chronodemon of Calendric Time",         attrs:"Ultimate success, rituals becoming nature.",                           netspan:"7::5",  card:{pip:2,suit:0} },
+  27: { name:"Bobobja (Beelzebub)",    type:"Amphidemon of Teeming Pestilence",             attrs:"Strange lights in the swamp, swarmachines.",                           netspan:"7::6",  card:{pip:5,suit:0} },
+  28: { name:"Minommo",               type:"Amphidemon of Submergance",                    attrs:"Shamanic voyage, dream sorcery.",                                      netspan:"8::0",  card:{pip:7,suit:0} },
+  29: { name:"Mur Mur (Murrumur)",     type:"Syzygetic Chronodemon of the Deep Ones",       attrs:"Oceanic sensation, gilled-unlife.",                                    netspan:"8::1",  card:null },
+  30: { name:"Nammamad",              type:"Cyclic Chronodemon of Subterranean Commerce",  attrs:"Voodoo in cyberspace, emergences.",                                    netspan:"8::2",  card:{pip:1,suit:3} },
+  31: { name:"Mummumix (Mix-Up)",      type:"Amphidemon of Insidious Fog",                  attrs:"Ocean storms, diseases from outer-space.",                             netspan:"8::3",  card:{pip:4,suit:3} },
+  32: { name:"Numko (Old Nuk)",        type:"Cyclic Chronodemon of Autochthony",            attrs:"Necrospeleology, vulcanism.",                                          netspan:"8::4",  card:{pip:3,suit:1} },
+  33: { name:"Muntuk (Manitou)",       type:"Cyclic Chronodemon of Arid Seabeds",           attrs:"Ancient rivers, cloud-vaults.",                                        netspan:"8::5",  card:{pip:3,suit:2} },
+  34: { name:"Mommoljo (Mama Jo)",     type:"Amphidemon of Xenogenesis",                    attrs:"Cosmobacterial exogermination, extraterrestrial residues.",             netspan:"8::6",  card:{pip:4,suit:0} },
+  35: { name:"Mombbo",                type:"Cyclic Chronodemon of Hybridity",              attrs:"Ophidian transmutation, surreptitious colonization.",                  netspan:"8::7",  card:{pip:1,suit:0} },
+  36: { name:"Uttunul",               type:"Syzygetic Xenodemon of Atonality",             attrs:"Crossing the iron-ocean, plutonics.",                                  netspan:"9::0",  card:null },
+  37: { name:"Tutagool (Yettuk)",      type:"Amphidemon of Punctuality",                    attrs:"The dark arts, rusting iron.",                                         netspan:"9::1",  card:{pip:7,suit:1} },
+  38: { name:"Unnunddo (The False Nun)", type:"Amphidemon of Endless Uncasing",             attrs:"Crypt-traffic, communication-grids.",                                  netspan:"9::2",  card:{pip:8,suit:1} },
+  39: { name:"Ununuttix (Tick-Tock)",  type:"Chaotic Xenodemon of Absolute Coincidence",   attrs:"Numerical connection through absence.",                                netspan:"9::3",  card:{pip:0,suit:1} },
+  40: { name:"Ununak (Nuke)",          type:"Amphidemon of Convulsions",                    attrs:"Secrets of the blacksmiths, subterranean impulses.",                   netspan:"9::4",  card:{pip:9,suit:1} },
+  41: { name:"Tukutu (Killer-Kate)",   type:"Amphidemon of Death-Strokes",                  attrs:"Crash-signals, barkerian scarring.",                                   netspan:"9::5",  card:{pip:9,suit:2} },
+  42: { name:"Unnutchi (T'ai Chi)",    type:"Chaotic Xenodemon of Coiling Outsideness",     attrs:"Asymmetric zygopoise, cybernetic anomalies.",                          netspan:"9::6",  card:{pip:0,suit:2} },
+  43: { name:"Nuttubab (Nut-Cracker)", type:"Amphidemon of Metaloid Unlife",                attrs:"Lunacies, dragon-lines.",                                              netspan:"9::7",  card:{pip:8,suit:2} },
+  44: { name:"Ummnu (Om, Amen, Omen)", type:"Amphidemon of Earth-Screams",                  attrs:"Crust-friction, anorganic tension.",                                   netspan:"9::8",  card:{pip:7,suit:2} },
+};
+
+const CARD_TO_MESH = {};
+(function() {
+  for (const [mesh, d] of Object.entries(DEMONS)) {
+    if (d.card && d.card.suit >= 0) {
+      CARD_TO_MESH[d.card.pip + '-' + d.card.suit] = Number(mesh);
+    }
+  }
+})();
+
+function cardToMesh(pip, suit) { return CARD_TO_MESH[pip + '-' + suit] ?? null; }
+
+function cardDemonName(pip, suit) {
+  const mesh = cardToMesh(pip, suit);
+  if (mesh === null) return null;
+  const d = DEMONS[mesh];
+  return d ? `${d.name}  ·  Mesh-${String(mesh).padStart(2,'0')}  ·  ${d.netspan}` : null;
+}
+
+function getDemon(negScore) {
+  const key = Math.min(Math.abs(negScore), 44);
+  const d = DEMONS[key];
+  if (!d) return { name:'Unknown Entity', lore:'Outside the mapped numogram.', netspan:'?', cardStr:'—' };
+  const SUIT_SYM = ['♠','♥','♦','♣'];
+  const SUIT_FULL = ['Spades (Mj−)','Hearts (Mn+)','Diamonds (Mn−)','Clubs (Mj+)'];
+  let cardStr = '—';
+  if (d.card && d.card.suit >= 0) {
+    cardStr = d.card.pip + SUIT_SYM[d.card.suit] + '  (' + SUIT_FULL[d.card.suit] + ')';
+  }
+  return { name: d.name, type: d.type, lore: d.attrs, netspan: d.netspan, cardStr };
+}
+
+// =============================================
+// GAME STATE
+// =============================================
+const SUIT_SYM   = ['♠','♥','♦','♣'];
+const SUIT_RED   = [false, true, true, false]; // hearts, diamonds = red
+const VALUE_LABEL = {1:'1',2:'2',3:'3',4:'4',5:'5',6:'6',7:'7',8:'8',9:'9'};
+
+let deck = [];
+let set1 = [];       // 5 cards in cross
+let set2Hand = [];      // all 5 Set-2 cards
+let set2Current = null;  // the currently active (flipped) Set-2 card
+let set2DrawIndex = 0;   // index of next card to flip
+let set2Paired = [];     // bool per card: was it paired?
+let set2Discarded = [];  // bool per card: was it discarded?
+let pairings = {};   // set1Index -> { set2Card, score }
+let angelicIndex = 0;
+let roundNum = 0;
+let roundHistory = [];
+let gamePhase = 'idle'; // idle | set1dealt | drawing | resolving
+let selectedSet1 = null;
+
+function buildDeck() {
+  const d = [];
+  for (let s = 0; s < 4; s++)
+    for (let v = 1; v <= 9; v++)
+      d.push({ suit: s, value: v });
+  return d;
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function drawCard() { return deck.pop(); }
+
+// =============================================
+// LOGGING
+// =============================================
+function log(msg, cls='') {
+  const panel = document.getElementById('log-panel');
+  const el = document.createElement('span');
+  el.className = 'log-entry' + (cls ? ' ' + cls : '');
+  el.textContent = msg;
+  panel.appendChild(el);
+  panel.appendChild(document.createElement('br'));
+  panel.scrollTop = panel.scrollHeight;
+}
+
+// =============================================
+// UI HELPERS
+// =============================================
+function setBtn(id, enabled) {
+  const el = document.getElementById(id);
+  if (el) el.disabled = !enabled;
+}
+
+function setPhase(n) {
+  for (let i = 0; i < 4; i++) {
+    const el = document.getElementById('ph-' + i);
+    if (el) el.className = 'phase-step' + (i === n ? ' active' : '');
+  }
+}
+
+function updateStatus() {
+  document.getElementById('st-round').textContent = roundNum || '—';
+  document.getElementById('st-deck').textContent = deck.length;
+  document.getElementById('st-index').textContent = angelicIndex > 0 ? '+' + angelicIndex : angelicIndex;
+  document.getElementById('st-round-score').textContent = '—';
+}
+
+function makeCardEl(card, opts={}) {
+  const el = document.createElement('div');
+  const sc = SUIT_RED[card.suit] ? 'suit-red' : 'suit-black';
+  const vl = VALUE_LABEL[card.value] || card.value;
+  const su = SUIT_SYM[card.suit];
+
+  el.className = 'card' + (opts.extra ? ' ' + opts.extra : '');
+
+  const tl = document.createElement('div');
+  tl.className = 'card-corner tl ' + sc;
+  tl.innerHTML = `<span>${vl}</span><span class="cn-suit">${su}</span>`;
+
+  const br = document.createElement('div');
+  br.className = 'card-corner br ' + sc;
+  br.innerHTML = `<span>${vl}</span><span class="cn-suit">${su}</span>`;
+
+  const mid = document.createElement('span');
+  mid.className = 'card-suit ' + sc;
+  mid.textContent = su;
+
+  el.appendChild(tl);
+  el.appendChild(mid);
+  el.appendChild(br);
+
+  const dn = cardDemonName(card.value, card.suit);
+  if (dn) el.setAttribute('data-demon', dn);
+
+  return el;
+}
+
+// =============================================
+// RENDER
+// =============================================
+const crossPositions = ['center','west','east','north','south'];
+const crossLabels    = ['Memories & Dreams','Destructive','Creative','Far Future','Deep Past'];
+
+function renderCross() {
+  const grid = document.getElementById('cross-grid');
+  grid.innerHTML = '';
+  crossPositions.forEach((pos, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'cross-slot';
+    slot.setAttribute('data-pos', pos);
+
+    const card = set1[i];
+    let cardEl;
+    if (card) {
+      const isPaired = pairings[i] !== undefined;
+      const isSelected = selectedSet1 === i;
+      let extra = isPaired ? 'paired' : '';
+      if (!isPaired && gamePhase === 'drawing' && set2Current && !isSet1FullyPaired()) extra = 'selectable';
+      if (isSelected) extra = 'selected';
+
+      cardEl = makeCardEl(card, { extra });
+      if (!isPaired && gamePhase === 'drawing' && set2Current) {
+        cardEl.onclick = () => handleSet1Click(i);
+      }
+    } else {
+      cardEl = document.createElement('div');
+      cardEl.className = 'card empty';
+    }
+
+    const label = document.createElement('div');
+    label.className = 'cross-label';
+    label.textContent = crossLabels[i];
+
+    slot.appendChild(cardEl);
+    slot.appendChild(label);
+    grid.appendChild(slot);
+  });
+}
+
+function isSet1FullyPaired() {
+  return Object.keys(pairings).length === 5;
+}
+
+function renderSet2() {
+  const row = document.getElementById('set2-row');
+  row.innerHTML = '';
+
+  if (set2Hand.length === 0) {
+    // No set-2 dealt yet — show 5 empty slots
+    for (let i = 0; i < 5; i++) {
+      const el = document.createElement('div');
+      el.className = 'card empty';
+      row.appendChild(el);
+    }
+    return;
+  }
+
+  set2Hand.forEach((card, i) => {
+    const isDrawn    = i < set2DrawIndex;      // has been flipped
+    const isCurrent  = i === set2DrawIndex - 1 && set2Current !== null; // currently active
+    const isPaired   = set2Paired[i] === true;
+    const isDiscarded = set2Discarded[i] === true;
+    const isPending  = i >= set2DrawIndex;     // not yet drawn
+
+    let el;
+    if (isPending) {
+      el = document.createElement('div');
+      el.className = 'card face-down';
+    } else if (isPaired) {
+      el = makeCardEl(card, { extra: 'paired' });
+    } else if (isDiscarded) {
+      el = makeCardEl(card, { extra: 'discarded' });
+    } else if (isCurrent) {
+      el = makeCardEl(card, { extra: 'current' });
+    } else {
+      el = makeCardEl(card, {});
+    }
+    row.appendChild(el);
+  });
+}
+
+function renderRoundHistory() {
+  const el = document.getElementById('round-history');
+  el.innerHTML = '';
+  roundHistory.forEach(s => {
+    const pip = document.createElement('div');
+    pip.className = 'round-pip' + (s < 0 ? ' neg' : '');
+    pip.textContent = (s >= 0 ? '+' : '') + s;
+    el.appendChild(pip);
+  });
+}
+
+function render() {
+  renderCross();
+  renderSet2();
+  renderRoundHistory();
+  updateStatus();
+  const discardBtn = document.getElementById('btn-discard');
+  if (discardBtn) discardBtn.disabled = !(set2Current && gamePhase === 'drawing');
+}
+
+// =============================================
+// GAME ACTIONS
+// =============================================
+function startGame() {
+  document.getElementById('result-screen').classList.remove('show');
+  deck = shuffle(buildDeck());
+  set1 = [];
+  set2Hand = [];
+  set2Current = null;
+  set2DrawIndex = 0;
+  pairings = {};
+  roundNum = 0;
+  angelicIndex = 0;
+  roundHistory = [];
+  selectedSet1 = null;
+  gamePhase = 'idle';
+
+  document.getElementById('log-panel').innerHTML = '';
+  log('Decadance — Lemurian Pandemonium Engine', 'system');
+
+  setBtn('btn-deal', true);
+  setBtn('btn-draw', false);
+  setBtn('btn-resolve', false);
+  setPhase(0);
+  render();
+}
+
+function dealSet1() {
+  if (deck.length < 10) { log('Not enough cards for a new round.', 'warn'); return; }
+  roundNum++;
+  set1 = [];
+  set2Hand = [];
+  set2Current = null;
+  set2DrawIndex = 0;
+  set2Paired = [];
+  set2Discarded = [];
+  pairings = {};
+  selectedSet1 = null;
+  gamePhase = 'set1dealt';
+
+  for (let i = 0; i < 5; i++) set1.push(drawCard());
+  // Reserve next 5 for Set-2
+  for (let i = 0; i < 5; i++) set2Hand.push(drawCard());
+
+  SFX.deal();
+  log(`— Round ${roundNum} — Deal Set-1`, 'system');
+  set1.forEach((c, i) => log(`  ${crossLabels[i]}: ${VALUE_LABEL[c.value]}${SUIT_SYM[c.suit]}`));
+
+  setBtn('btn-deal', false);
+  setBtn('btn-draw', true);
+  setBtn('btn-resolve', false);
+  setPhase(1);
+  render();
+}
+
+function drawSet2Card() {
+  if (set2DrawIndex >= set2Hand.length) {
+    // All Set-2 cards drawn — move to resolve
+    setBtn('btn-draw', false);
+    setBtn('btn-resolve', true);
+    setPhase(3);
+    gamePhase = 'resolving';
+    render();
+    return;
+  }
+
+  set2Current = set2Hand[set2DrawIndex];
+  set2DrawIndex++;
+  selectedSet1 = null;
+  gamePhase = 'drawing';
+
+  SFX.draw();
+  log(`Draw Set-2: ${VALUE_LABEL[set2Current.value]}${SUIT_SYM[set2Current.suit]}`, 'highlight');
+
+  setPhase(2);
+  setBtn('btn-draw', false);
+  render();
+}
+
+function handleSet1Click(idx) {
+  if (!set2Current || gamePhase !== 'drawing') return;
+  const s1card = set1[idx];
+  if (pairings[idx] !== undefined) return;
+
+  const sum = s1card.value + set2Current.value;
+  if (sum === 10) {
+    const diff = Math.abs(s1card.value - set2Current.value);
+    pairings[idx] = { card: set2Current, score: diff };
+    set2Paired[set2DrawIndex - 1] = true;
+    SFX.pair(diff);
+    log(`  Pair: ${VALUE_LABEL[s1card.value]}${SUIT_SYM[s1card.suit]} + ${VALUE_LABEL[set2Current.value]}${SUIT_SYM[set2Current.suit]} = 10 → +${diff}`, 'positive');
+    set2Current = null;
+    selectedSet1 = null;
+    gamePhase = 'set1dealt';
+    setBtn('btn-draw', true);
+    setPhase(1);
+  } else {
+    SFX.noMatch();
+    log(`  No pair: ${VALUE_LABEL[s1card.value]} + ${VALUE_LABEL[set2Current.value]} = ${sum} (need 10)`, 'negative');
+  }
+  render();
+}
+
+function skipSet2Card() {
+  // Player explicitly discards current Set-2 card without pairing
+  if (!set2Current) return;
+  log(`  Discard: ${VALUE_LABEL[set2Current.value]}${SUIT_SYM[set2Current.suit]} — no pair found`, '');
+  set2Discarded[set2DrawIndex - 1] = true;
+  set2Current = null;
+  selectedSet1 = null;
+  gamePhase = 'set1dealt';
+  setBtn('btn-draw', true);
+  setPhase(1);
+  render();
+}
+
+function resolveRound() {
+  let positiveScore = 0;
+  let negativeScore = 0;
+
+  // Paired cards
+  for (const [idx, p] of Object.entries(pairings)) {
+    positiveScore += p.score;
+    log(`  Pair score: +${p.score}`, 'positive');
+  }
+
+  // Unpaired Set-1 cards
+  for (let i = 0; i < 5; i++) {
+    if (pairings[i] === undefined) {
+      negativeScore += set1[i].value;
+      log(`  Unpaired ${VALUE_LABEL[set1[i].value]}${SUIT_SYM[set1[i].suit]}: −${set1[i].value}`, 'negative');
+    }
+  }
+
+  const roundScore = positiveScore - negativeScore;
+  roundHistory.push(roundScore);
+  document.getElementById('st-round-score').textContent = (roundScore >= 0 ? '+' : '') + roundScore;
+  log(`Round ${roundNum} score: ${roundScore >= 0 ? '+' : ''}${roundScore}`, 'system');
+
+  if (roundScore > 0) {
+    angelicIndex += roundScore;
+    log(`Angelic Index: +${angelicIndex}`, 'highlight');
+    SFX.resolvePos(roundScore);
+  }
+
+  renderRoundHistory();
+  updateStatus();
+
+  setBtn('btn-resolve', false);
+  setBtn('btn-draw', false);
+
+  if (roundScore <= 0) {
+    log(roundScore < 0 ? 'Negative result — the Aeon closes.' : 'Zero score — Lurgo is called.', 'warn');
+    SFX.resolveNeg();
+    setTimeout(() => endGame(roundScore), 1400);
+  } else if (deck.length < 10) {
+    log('Deck exhausted — the Aeon closes.', 'warn');
+    SFX.resolveNeg();
+    setTimeout(() => endGame(roundScore), 1400);
+  } else {
+    // Continue
+    gamePhase = 'idle';
+    setBtn('btn-deal', true);
+    setPhase(0);
+    render();
+  }
+}
+
+function endGame(triggerScore) {
+  stopAll();
+  const demonIndex = Math.min(Math.abs(triggerScore), 44);
+  const demon = getDemon(triggerScore);
+
+  setTimeout(SFX.demonCall, 300);
+  log(`Demon called: ${demon.name} [Mesh-${String(demonIndex).padStart(2,'0')}]`, 'warn');
+
+  const screen = document.getElementById('result-screen');
+  document.getElementById('result-demon-name').textContent = demon.name;
+  document.getElementById('result-meta').innerHTML =
+    `Mesh-${String(demonIndex).padStart(2,'0')} &nbsp;·&nbsp; <b>${demon.netspan}</b> &nbsp;·&nbsp; ${demon.cardStr}<br><i>${demon.type}</i>`;
+
+  // Angelic index
+  const al = document.getElementById('angelic-label');
+  const an = document.getElementById('angelic-num');
+  if (angelicIndex > 0) {
+    al.style.display = '';
+    an.style.display = '';
+    an.textContent = '+' + angelicIndex;
+  } else {
+    al.style.display = 'none';
+    an.style.display = 'none';
+  }
+
+  const numEl = document.getElementById('result-score-num');
+  numEl.textContent = triggerScore;
+
+  const loreEl = document.getElementById('result-lore');
+  loreEl.innerHTML = `<em>${demon.type}</em><br>${demon.lore}`;
+
+  screen.classList.add('show');
+  screen.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// =============================================
+// TOOLTIP
+// =============================================
+const tip = document.getElementById('card-tooltip');
+document.addEventListener('mouseover', e => {
+  const card = e.target.closest('[data-demon]');
+  if (card) { tip.textContent = card.getAttribute('data-demon'); tip.style.display = 'block'; }
+});
+document.addEventListener('mouseout', e => {
+  if (e.target.closest('[data-demon]')) tip.style.display = 'none';
+});
+document.addEventListener('mousemove', e => {
+  if (tip.style.display === 'block') {
+    tip.style.left = (e.clientX + 14) + 'px';
+    tip.style.top  = (e.clientY - 30) + 'px';
+  }
+});
+
+// =============================================
+// RULES TOGGLE
+// =============================================
+function toggleRules() {
+  document.getElementById('rules-panel').classList.toggle('open');
+}
+
+
+
+// =============================================
+// INIT
+// =============================================
+startGame();
+</script>
+</body>
+</html>
