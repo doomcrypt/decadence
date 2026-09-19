@@ -10,7 +10,7 @@ Decadance is a single-file, browser-based card game inspired by the CCRU's numog
 
 Decadance is played with a reduced 36-card pack: values 1 through 9 across four suits, with all royal cards, tens, and jokers removed.
 
-- Five cards are dealt face up in the Atlantean Cross (Set-1): Centre (Memories & Dreams), West (Destructive), East (Creative), North (Far Future), South (Deep Past).
+- Five cards are dealt face up in the Atlantean Cross (Set-1): Center (Memories & Dreams), West (Destructive), East (Creative), North (Far Future), South (Deep Past).
 - Five more cards are dealt face down (Set-2) and revealed one at a time.
 - Each Set-2 card can be paired with a Set-1 card if their values sum to ten. A successful pair scores the difference between the two cards.
 - A Set-2 card that cannot pair is discarded. Any Set-1 card left unpaired at the end of the round scores its value as a penalty.
