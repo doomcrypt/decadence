@@ -4,8 +4,7 @@ A Decadence Game of the Numogram
 
 Decadance is a single-file, browser-based card game inspired by the CCRU's numogram and Lemurian Pandemonium. Deal the Atlantean Cross, draw and pair cards to score points, and discover which of the 45 lemurs/demons governs your round.
 
-**[Play it live](#https://doomcrypt.github.io/decadence/)** *(replace with your GitHub Pages URL once deployed)*
-
+**[Play it live](https://doomcrypt.github.io/decadence/)**
 ## About the game
 
 Decadance is played with a reduced 36-card pack: values 1 through 9 across four suits, with all royal cards, tens, and jokers removed.
